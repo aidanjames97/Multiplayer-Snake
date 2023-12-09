@@ -55,17 +55,6 @@ class cube():
             pygame.draw.circle(surface, (0,0,0), circleMiddle, radius)
             pygame.draw.circle(surface, (0,0,0), circleMiddle2, radius)
 
-# for messaging (sending)
-def msg_thread(enc, client_socket):
-    while True:
-        try:
-            msg = "m:"
-            msg += input()
-            emsg = enc(msg)
-            client_socket.send(emsg)
-        except:
-            break
-
 # client side of snake game
 def main():
 
@@ -87,8 +76,6 @@ def main():
 
         def dec(msg):
             return rsa.decrypt(msg, private_Key).decode('ascii')
-
-        start_new_thread(msg_thread, (enc, client_socket))
 
         # pygame initialization stuff
         pygame.init() # initialize pygame
@@ -131,6 +118,7 @@ def main():
             # handling inputs from client, sending to server
             sent = False
             for event in pygame.event.get():
+                Cmsg = "c:get"
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
                         Cmsg = "c:up"
@@ -147,8 +135,15 @@ def main():
                         client_socket.send(enc("c:quit"))
                         quitGame = True
                         break
-                    else:
-                        Cmsg = "c:get"
+                    elif event.key == pygame.K_z:
+                        client_socket.send(enc("m: Who is this?"))
+                        sent = True
+                    elif event.key == pygame.K_x:
+                        client_socket.send(enc("m: I win!"))
+                        sent = True
+                    elif event.key == pygame.K_c:
+                        client_socket.send(enc("m: Congratulations"))
+                        sent = True
                     
                     client_socket.send(enc(Cmsg))
                     sent = True
